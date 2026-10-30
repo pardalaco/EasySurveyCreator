@@ -5,6 +5,21 @@ POST {{baseUrl}}/suvery
 Content-Type: application/json
 
 {
-    "question": "Nueva encuesta", 
-    "options": ["Opción A","Opción B","Opción C"]
+  "question": "¿Cuál es tu framework favorito?",
+  "options": [
+    { "text": "Express" },
+    { "text": "Fastify" }
+  ]
+}
+
+
+### POST: Crea una nueva encuesta INCORRECTO
+POST {{baseUrl}}/suvery
+Content-Type: application/json
+
+{
+  "question": "¿Cuál es tu framework favorito?",
+  "options": [
+    { "text": "Fastify" }
+  ]
 }
