@@ -1,0 +1,10 @@
+@baseUrl=http://localhost:3000
+
+### POST: Crea una nueva encuesta
+POST {{baseUrl}}/suvery
+Content-Type: application/json
+
+{
+    "question": "Nueva encuesta", 
+    "options": ["Opción A","Opción B","Opción C"]
+}

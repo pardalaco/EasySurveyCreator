@@ -5,11 +5,11 @@
 ## 🛠️ Backend (Node.js + Express + TypeScript)
 
 ### 1. Configuración Inicial
-- [ ] Inicializar el proyecto Node.js (`npm init -y`).
-- [ ] Instalar dependencias de producción: `express`, `cors`.
-- [ ] Instalar dependencias de desarrollo: `typescript`, `@types/node`, `@types/express`, `@types/cors`, `tsx`.
-- [ ] Configurar `tsconfig.json` con soporte para módulos ESNext.
-- [ ] Configurar el script de desarrollo (`npm run dev`) con `tsx watch`.
+- [x] Inicializar el proyecto Node.js (`npm init -y`).
+- [x] Instalar dependencias de producción: `express`, `cors`.
+- [x] Instalar dependencias de desarrollo: `typescript`, `@types/node`, `@types/express`, `@types/cors`, `tsx`.
+- [x] Configurar `tsconfig.json` con soporte para módulos ESNext.
+- [x] Configurar el script de desarrollo (`npm run dev`) con `tsx watch`.
 
 ### 2. Modelado de Datos y Lógica
 - [ ] Definir interfaces de TypeScript para `PollOption` y `Poll` en `src/types.ts`.
