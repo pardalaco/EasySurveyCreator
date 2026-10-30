@@ -11,7 +11,7 @@ export const validateSchema =
       const errorMessage = error.details?.[0]?.message || "Error de validación";
       const err = new HttpError(error.message);
       err.code = 400;
-      next(err);
+      return next(err);
     }
 
     next();
