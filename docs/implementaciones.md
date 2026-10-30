@@ -52,4 +52,3 @@ Necesitarás básicamente dos pantallas o vistas (puedes usar enrutamiento senci
 
    Diseño limpio: Usa Tailwind CSS (o módulos de CSS sencillos) para darle un aspecto moderno, con transiciones suaves en las barras de porcentaje.
 
-¿Quieres que empecemos detallando el código base de la estructura del Backend o prefieres que nos enfoquemos primero en maquetar las vistas del Frontend?
