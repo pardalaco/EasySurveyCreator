@@ -13,6 +13,11 @@ app.post("/suvery", validateSchema(surveyCreatorSchema), (req, res) => {
   res.send("OK");
 });
 
+app.use((req, res) => {
+  res.status(404).send("La página que estas buscando no existe");
+  console.log(`404 Not found: ${req.method} ${req.url}`);
+});
+
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
   res.status(err.code || 500).send(err.message);
 });

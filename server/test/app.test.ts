@@ -123,7 +123,6 @@ describe("rutas", () => {
     const res = await fetch(`${baseUrl}/suvery`);
 
     expect(res.status).toBe(404);
-    expect(await res.text()).toContain("Cannot GET /suvery");
   });
 
   it("responde 404 para rutas desconocidas", async () => {
