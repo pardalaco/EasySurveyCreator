@@ -19,11 +19,12 @@ app.post("/suvery", validateSchema(surveyCreatorSchema), (req, res) => {
   // Opcional: asegurarte de que cumple con el tipo Suvery
   const newSurvey: Suvery = {
     ...body,
-    id: String(suverys.length + 1),
+    id: String(crypto.randomUUID()),
   };
 
   suverys.push(newSurvey);
 
+  console.log(suverys);
   res.send(newSurvey);
 });
 
