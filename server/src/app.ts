@@ -3,6 +3,9 @@ import type { Request, Response, NextFunction } from "express";
 import { validateSchema } from "./middlewares/validateSchema.js";
 import { surveyCreatorSchema } from "./schemas/suvery.js";
 import { HttpError } from "./utils/httpError.js";
+import type { Suvery } from "./types/index.js";
+
+const suverys: Array<Suvery> = [];
 
 const app = express();
 
@@ -10,7 +13,19 @@ app.use(express.json());
 
 app.post("/suvery", validateSchema(surveyCreatorSchema), (req, res) => {
   console.log("/suvery");
-  res.send("OK");
+
+  const body = req.body as Suvery;
+
+  // Opcional: asegurarte de que cumple con el tipo Suvery
+  const newSurvey: Suvery = {
+    ...body,
+    id: String(suverys.length + 1),
+  };
+
+  suverys.push(newSurvey);
+
+  console.log(suverys);
+  res.send(newSurvey);
 });
 
 app.use((req, res) => {

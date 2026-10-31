@@ -52,7 +52,16 @@ describe("POST /suvery", () => {
     const res = await post("/suvery", validSurvey);
 
     expect(res.status).toBe(200);
-    expect(await res.text()).toBe("OK");
+
+    const body = await res.json();
+
+    // Verificamos que devuelva la encuesta enviada junto con un id generado
+    expect(body).toMatchObject({
+      question: validSurvey.question,
+      options: validSurvey.options,
+    });
+
+    expect(body).toHaveProperty("id");
   });
 
   it("responde 400 si falta la pregunta", async () => {
