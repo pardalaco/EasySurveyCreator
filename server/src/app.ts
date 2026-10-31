@@ -12,7 +12,7 @@ const app = express();
 app.use(express.json());
 
 app.post("/suvery", validateSchema(surveyCreatorSchema), (req, res) => {
-  console.log("/suvery");
+  console.log("POST/suvery");
 
   const body = req.body as Suvery;
 
@@ -24,8 +24,20 @@ app.post("/suvery", validateSchema(surveyCreatorSchema), (req, res) => {
 
   suverys.push(newSurvey);
 
-  console.log(suverys);
   res.send(newSurvey);
+});
+
+app.get("/suvery/:id", (req, res) => {
+  console.log("GET /suvery");
+
+  const id = req.params.id;
+  const suvery = suverys.find((s) => s.id === id);
+  if (!suvery) {
+    res.status(404).send("Suvery not found");
+    return;
+  }
+
+  res.status(200).send(suvery);
 });
 
 app.use((req, res) => {
