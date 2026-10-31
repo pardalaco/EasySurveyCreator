@@ -127,6 +127,30 @@ describe("POST /suvery", () => {
   });
 });
 
+describe("GET /suvery/:id", () => {
+  it("responde 200 con la encuesta creada", async () => {
+    const createdRes = await post("/suvery", validSurvey);
+    const created = await createdRes.json();
+
+    const res = await fetch(`${baseUrl}/suvery/${created.id}`);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body).toMatchObject({
+      id: created.id,
+      question: validSurvey.question,
+      options: validSurvey.options,
+    });
+  });
+
+  it("responde 404 si la encuesta no existe", async () => {
+    const res = await fetch(`${baseUrl}/suvery/${crypto.randomUUID()}`);
+
+    expect(res.status).toBe(404);
+    expect(await res.text()).toBe("Suvery not found");
+  });
+});
+
 describe("rutas", () => {
   it("responde 404 para GET /suvery", async () => {
     const res = await fetch(`${baseUrl}/suvery`);
