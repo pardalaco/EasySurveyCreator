@@ -5,7 +5,7 @@ import { validateOptionIndex } from "./middlewares/validateOptionIndex.js";
 import { validateSurveyId } from "./middlewares/validateSurveyId.js";
 import { surveyCreatorSchema, surveyVoteSchema } from "./schemas/survey.js";
 import { HttpError } from "./utils/httpError.js";
-import type { Survey } from "./types/index.js";
+import type { Survey, SurveyOption, VoteSchema } from "./types/index.js";
 
 const surveys: Array<Survey> = [];
 
@@ -23,6 +23,7 @@ app.post("/survey", validateSchema(surveyCreatorSchema), (req, res) => {
   options = options.map((o, index) => ({
     ...o,
     id: index,
+    votes: 0,
   }));
 
   // Opcional: asegurarte de que cumple con el tipo Survey
@@ -59,7 +60,39 @@ app.post(
   validateOptionIndex(surveys),
   (req, res) => {
     const id = req.params.id;
-    console.log(`POST/survey/${id}/vote`);
+    const body = req.body as VoteSchema;
+    const optionIndex = body.optionIndex;
+
+    const survey = surveys.filter((s) => s.id === id)[0];
+    if (survey === undefined) {
+      const err = new HttpError(`No existe la encuesta`);
+      err.code = 404;
+      res.status(404).send(err);
+      return;
+    }
+
+    const options = survey.options;
+
+    let option = options.filter((s) => s.id === optionIndex)[0];
+    if (option === undefined) {
+      const err = new HttpError(`No existe la opción para esta encuesta`);
+      err.code = 404;
+      res.status(404).send(err);
+      return;
+    }
+
+    let { votes } = option;
+    votes += 1;
+    option = { ...option, votes };
+
+    survey.options = survey.options.map((o) => {
+      if (o.id === option.id) return option;
+      else return o;
+    });
+
+    console.log(survey.options);
+
+    res.status(200).send(survey);
   }
 );
 
