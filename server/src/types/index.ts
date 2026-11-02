@@ -10,3 +10,7 @@ export interface Survey {
   options: SurveyOption[];
   timestamp: Date;
 }
+
+export interface VoteSchema {
+  optionIndex: number;
+}

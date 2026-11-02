@@ -1,5 +1,5 @@
 import Joi from "joi";
-import { type Survey, type SurveyOption } from "../types/index.js";
+import type { Survey, SurveyOption, VoteSchema } from "../types/index.js";
 
 // Esquema para validar cada opción individual de la encuesta
 const surveyOptionSchema = Joi.object<SurveyOption>({
@@ -14,8 +14,12 @@ const surveyOptionSchema = Joi.object<SurveyOption>({
   votes: Joi.number().integer().min(0).default(0),
 });
 
-const suveryCreateOptionSchema = surveyOptionSchema.tailor("create");
-const suveryUpdateOptionSchema = surveyOptionSchema.tailor("update");
+const suveryCreateOptionSchema = surveyOptionSchema.tailor(
+  "create"
+) as Joi.ObjectSchema<SurveyOption>;
+const suveryUpdateOptionSchema = surveyOptionSchema.tailor(
+  "update"
+) as Joi.ObjectSchema<SurveyOption>;
 
 // Esquema principal para crear/validar la encuesta
 const surveyCreatorSchema = Joi.object<Survey>({
@@ -25,4 +29,8 @@ const surveyCreatorSchema = Joi.object<Survey>({
   timestamp: Joi.date().forbidden(),
 });
 
-export { surveyCreatorSchema };
+const surveyVoteSchema = Joi.object<VoteSchema>({
+  optionIndex: Joi.number().positive().forbidden().required(),
+});
+
+export { surveyCreatorSchema, surveyVoteSchema };

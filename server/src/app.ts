@@ -1,7 +1,9 @@
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import { validateSchema } from "./middlewares/validateSchema.js";
-import { surveyCreatorSchema } from "./schemas/survey.js";
+import { validateOptionIndex } from "./middlewares/validateOptionIndex.js";
+import { validateSurveyId } from "./middlewares/validateSurveyId.js";
+import { surveyCreatorSchema, surveyVoteSchema } from "./schemas/survey.js";
 import { HttpError } from "./utils/httpError.js";
 import type { Survey } from "./types/index.js";
 
@@ -49,6 +51,17 @@ app.get("/survey/:id", (req, res) => {
 
   res.status(200).send(survey);
 });
+
+app.post(
+  "/survey/:id/vote",
+  validateSchema(surveyVoteSchema),
+  validateSurveyId(surveys),
+  validateOptionIndex(surveys),
+  (req, res) => {
+    const id = req.params.id;
+    console.log(`POST/survey/${id}/vote`);
+  }
+);
 
 app.use((req, res) => {
   res.status(404).send("La página que estas buscando no existe");

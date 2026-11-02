@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 
-### POST: Crea una nueva encuesta INCORRECTO
+### POST: Crea una nueva encuesta INVÁLIDA
 POST {{baseUrl}}/survey
 Content-Type: application/json
 
@@ -28,7 +28,7 @@ Content-Type: application/json
 GET {{baseUrl}}/survey/1
 
 
-### GET: Obtenemos la encuesta inválido
+### GET: Obtenemos la encuesta INVÁLIDA
 GET {{baseUrl}}/survey/1000
 
 
@@ -38,4 +38,30 @@ Content-Type: application/json
 
 {
   "optionIndex": 1
+}
+
+### POST: Votamos INVÁLIDA
+POST {{baseUrl}}/survey/1/vote
+Content-Type: application/json
+
+{
+  "optionIndex": 1
+}
+
+@idEncuesta=040c1578-4fb7-4d59-8325-038528a5655b
+
+### POST: Votamos
+POST {{baseUrl}}/survey/{{idEncuesta}}/vote
+Content-Type: application/json
+
+{
+  "optionIndex": 1
+}
+
+### POST: Votamos
+POST {{baseUrl}}/survey/{{idEncuesta}}/vote
+Content-Type: application/json
+
+{
+  "optionIndex": 4
 }
