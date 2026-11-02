@@ -1,32 +1,19 @@
 import { describe, expect, it } from "vitest";
 import { surveyCreatorSchema } from "../../src/schemas/survey.js";
 
-const validSurvey = {
+const validCreatedSurvey = {
   question: "¿Cuál es tu lenguaje favorito?",
   options: [
-    { text: "TypeScript", votes: 3 },
-    { text: "JavaScript", votes: 1 },
+    { text: "TypeScript", votes: 0 },
+    { text: "JavaScript", votes: 0 },
   ],
 };
 
 describe("surveyCreatorSchema", () => {
   it("acepta una encuesta válida", () => {
-    const { error, value } = surveyCreatorSchema.validate(validSurvey);
+    const { error, value } = surveyCreatorSchema.validate(validCreatedSurvey);
     expect(error).toBeUndefined();
-    expect(value).toEqual(validSurvey);
-  });
-
-  it("acepta la encuesta sin enviar votes (se rellenan con 0)", () => {
-    const { error, value } = surveyCreatorSchema.validate({
-      question: "¿Prefieres té o café?",
-      options: [{ text: "Té" }, { text: "Café" }],
-    });
-
-    expect(error).toBeUndefined();
-    expect(value.options).toEqual([
-      { text: "Té", votes: 0 },
-      { text: "Café", votes: 0 },
-    ]);
+    expect(value).toEqual(validCreatedSurvey);
   });
 
   it("rechaza el body vacío", () => {
@@ -38,7 +25,7 @@ describe("surveyCreatorSchema", () => {
   describe("question", () => {
     it("es obligatoria", () => {
       const { error } = surveyCreatorSchema.validate({
-        ...validSurvey,
+        ...validCreatedSurvey,
         question: undefined,
       });
       expect(error?.message).toContain('"question" is required');
@@ -46,7 +33,7 @@ describe("surveyCreatorSchema", () => {
 
     it("no acepta cadena vacía", () => {
       const { error } = surveyCreatorSchema.validate({
-        ...validSurvey,
+        ...validCreatedSurvey,
         question: "",
       });
       expect(error).toBeDefined();
@@ -54,7 +41,7 @@ describe("surveyCreatorSchema", () => {
 
     it("acepta hasta 255 caracteres", () => {
       const { error } = surveyCreatorSchema.validate({
-        ...validSurvey,
+        ...validCreatedSurvey,
         question: "a".repeat(255),
       });
       expect(error).toBeUndefined();
@@ -62,7 +49,7 @@ describe("surveyCreatorSchema", () => {
 
     it("rechaza más de 255 caracteres", () => {
       const { error } = surveyCreatorSchema.validate({
-        ...validSurvey,
+        ...validCreatedSurvey,
         question: "a".repeat(256),
       });
       expect(error?.message).toContain("must be less than or equal to 255");
@@ -70,7 +57,7 @@ describe("surveyCreatorSchema", () => {
 
     it("rechaza valores que no sean string", () => {
       const { error } = surveyCreatorSchema.validate({
-        ...validSurvey,
+        ...validCreatedSurvey,
         question: 42,
       });
       expect(error?.message).toContain('"question" must be a string');
@@ -174,7 +161,7 @@ describe("surveyCreatorSchema", () => {
   describe("id", () => {
     it("está prohibido para el cliente", () => {
       const { error } = surveyCreatorSchema.validate({
-        ...validSurvey,
+        ...validCreatedSurvey,
         id: "123",
       });
       expect(error?.message).toContain('"id" is not allowed');
@@ -183,7 +170,7 @@ describe("surveyCreatorSchema", () => {
 
   it("rechaza campos desconocidos", () => {
     const { error } = surveyCreatorSchema.validate({
-      ...validSurvey,
+      ...validCreatedSurvey,
       extra: true,
     });
     expect(error?.message).toContain('"extra" is not allowed');

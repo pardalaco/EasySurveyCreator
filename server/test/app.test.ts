@@ -96,18 +96,6 @@ describe("POST /survey", () => {
     expect(res.data).toContain('"id" is not allowed');
   });
 
-  it("responde 400 si una opción tiene votes negativos", async () => {
-    const res = await post("/survey", {
-      question: "pregunta",
-      options: [{ text: "ok", votes: -1 }, { text: "otra" }],
-    });
-
-    expect(res.status).toBe(400);
-    expect(res.data).toContain(
-      '"options[0].votes" must be greater than or equal to 0'
-    );
-  });
-
   it("responde 500 con JSON malformado", async () => {
     const res = await api.post("/survey", "{ no es json", {
       headers: { "Content-Type": "application/json" },

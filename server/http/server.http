@@ -26,3 +26,16 @@ Content-Type: application/json
 
 ### GET: Obtenemos la encuesta recien creada
 GET {{baseUrl}}/survey/1
+
+
+### GET: Obtenemos la encuesta inválido
+GET {{baseUrl}}/survey/1000
+
+
+### POST: Votamos
+POST {{baseUrl}}/survey/1/vote
+Content-Type: application/json
+
+{
+  "optionIndex": 1
+}

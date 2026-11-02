@@ -16,10 +16,18 @@ app.post("/survey", validateSchema(surveyCreatorSchema), (req, res) => {
 
   const body = req.body as Survey;
 
+  let { options } = body;
+
+  options = options.map((o, index) => ({
+    ...o,
+    id: index,
+  }));
+
   // Opcional: asegurarte de que cumple con el tipo Survey
   const newSurvey: Survey = {
     ...body,
     id: String(crypto.randomUUID()),
+    options: options,
     timestamp: new Date(),
   };
 

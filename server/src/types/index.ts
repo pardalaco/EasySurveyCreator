@@ -1,4 +1,5 @@
 export interface SurveyOption {
+  id: number;
   text: string;
   votes: number;
 }
