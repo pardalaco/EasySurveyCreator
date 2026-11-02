@@ -48,9 +48,9 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("POST /suvery", () => {
+describe("POST /survey", () => {
   it("responde 200 con un body válido", async () => {
-    const res = await post("/suvery", validSurvey);
+    const res = await post("/survey", validSurvey);
 
     expect(res.status).toBe(200);
 
@@ -66,21 +66,21 @@ describe("POST /suvery", () => {
   });
 
   it("responde 400 si falta la pregunta", async () => {
-    const res = await post("/suvery", { options: validSurvey.options });
+    const res = await post("/survey", { options: validSurvey.options });
 
     expect(res.status).toBe(400);
     expect(res.data).toContain('"question" is required');
   });
 
   it("responde 400 con el body vacío", async () => {
-    const res = await post("/suvery", {});
+    const res = await post("/survey", {});
 
     expect(res.status).toBe(400);
     expect(res.data).toContain('"question" is required');
   });
 
   it("responde 400 si hay menos de 2 opciones", async () => {
-    const res = await post("/suvery", {
+    const res = await post("/survey", {
       question: "pregunta",
       options: [{ text: "única" }],
     });
@@ -90,14 +90,14 @@ describe("POST /suvery", () => {
   });
 
   it("responde 400 si se envía el id", async () => {
-    const res = await post("/suvery", { ...validSurvey, id: "123" });
+    const res = await post("/survey", { ...validSurvey, id: "123" });
 
     expect(res.status).toBe(400);
     expect(res.data).toContain('"id" is not allowed');
   });
 
   it("responde 400 si una opción tiene votes negativos", async () => {
-    const res = await post("/suvery", {
+    const res = await post("/survey", {
       question: "pregunta",
       options: [{ text: "ok", votes: -1 }, { text: "otra" }],
     });
@@ -109,7 +109,7 @@ describe("POST /suvery", () => {
   });
 
   it("responde 500 con JSON malformado", async () => {
-    const res = await api.post("/suvery", "{ no es json", {
+    const res = await api.post("/survey", "{ no es json", {
       headers: { "Content-Type": "application/json" },
     });
 
@@ -117,7 +117,7 @@ describe("POST /suvery", () => {
   });
 
   it("responde 400 si no se envía Content-Type JSON", async () => {
-    const res = await api.post("/suvery", JSON.stringify(validSurvey), {
+    const res = await api.post("/survey", JSON.stringify(validSurvey), {
       headers: { "Content-Type": false },
     });
 
@@ -125,12 +125,12 @@ describe("POST /suvery", () => {
   });
 });
 
-describe("GET /suvery/:id", () => {
+describe("GET /survey/:id", () => {
   it("responde 200 con la encuesta creada", async () => {
-    const createdRes = await post("/suvery", validSurvey);
+    const createdRes = await post("/survey", validSurvey);
     const created = createdRes.data;
 
-    const res = await api.get(`/suvery/${created.id}`);
+    const res = await api.get(`/survey/${created.id}`);
 
     expect(res.status).toBe(200);
     expect(res.data).toMatchObject({
@@ -141,16 +141,16 @@ describe("GET /suvery/:id", () => {
   });
 
   it("responde 404 si la encuesta no existe", async () => {
-    const res = await api.get(`/suvery/${crypto.randomUUID()}`);
+    const res = await api.get(`/survey/${crypto.randomUUID()}`);
 
     expect(res.status).toBe(404);
-    expect(res.data).toBe("Suvery not found");
+    expect(res.data).toBe("Survey not found");
   });
 });
 
 describe("rutas", () => {
-  it("responde 404 para GET /suvery", async () => {
-    const res = await api.get("/suvery");
+  it("responde 404 para GET /survey", async () => {
+    const res = await api.get("/survey");
 
     expect(res.status).toBe(404);
   });

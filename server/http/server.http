@@ -1,7 +1,7 @@
 @baseUrl=http://localhost:3000
 
 ### POST: Crea una nueva encuesta
-POST {{baseUrl}}/suvery
+POST {{baseUrl}}/survey
 Content-Type: application/json
 
 {
@@ -14,7 +14,7 @@ Content-Type: application/json
 
 
 ### POST: Crea una nueva encuesta INCORRECTO
-POST {{baseUrl}}/suvery
+POST {{baseUrl}}/survey
 Content-Type: application/json
 
 {
@@ -25,4 +25,4 @@ Content-Type: application/json
 }
 
 ### GET: Obtenemos la encuesta recien creada
-GET {{baseUrl}}/suvery/1
+GET {{baseUrl}}/survey/1

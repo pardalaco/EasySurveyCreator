@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import Joi from "joi";
 import type { Request, Response, NextFunction } from "express";
 import { validateSchema } from "../../src/middlewares/validateSchema.js";
-import { surveyCreatorSchema } from "../../src/schemas/suvery.js";
+import { surveyCreatorSchema } from "../../src/schemas/survey.js";
 import { HttpError } from "../../src/utils/httpError.js";
 
 const validSurvey = {
