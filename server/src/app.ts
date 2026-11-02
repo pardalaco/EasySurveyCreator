@@ -20,6 +20,7 @@ app.post("/survey", validateSchema(surveyCreatorSchema), (req, res) => {
   const newSurvey: Survey = {
     ...body,
     id: String(crypto.randomUUID()),
+    timestamp: new Date(),
   };
 
   surveys.push(newSurvey);

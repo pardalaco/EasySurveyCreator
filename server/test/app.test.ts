@@ -135,6 +135,7 @@ describe("GET /survey/:id", () => {
     expect(res.status).toBe(200);
     expect(res.data).toMatchObject({
       id: created.id,
+      timestamp: created.timestamp,
       question: validSurvey.question,
       options: validSurvey.options,
     });

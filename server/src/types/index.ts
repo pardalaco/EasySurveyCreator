@@ -7,4 +7,5 @@ export interface Survey {
   id: string;
   question: string;
   options: SurveyOption[];
+  timestamp: Date;
 }
