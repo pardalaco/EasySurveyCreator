@@ -1,6 +1,7 @@
 @baseUrl=http://localhost:3000
 
 ### POST: Crea una nueva encuesta
+# @name crearEncuesta
 POST {{baseUrl}}/survey
 Content-Type: application/json
 
@@ -11,6 +12,9 @@ Content-Type: application/json
     { "text": "Fastify" }
   ]
 }
+###
+# Capturamos el ID de la respuesta anterior usando .response.body.*
+@idEncuesta = {{crearEncuesta.response.body.id}}
 
 
 ### POST: Crea una nueva encuesta INVÁLIDA
@@ -25,7 +29,7 @@ Content-Type: application/json
 }
 
 ### GET: Obtenemos la encuesta recien creada
-GET {{baseUrl}}/survey/1
+GET {{baseUrl}}/survey/{{idEncuesta}}
 
 
 ### GET: Obtenemos la encuesta INVÁLIDA
@@ -33,7 +37,7 @@ GET {{baseUrl}}/survey/1000
 
 
 ### POST: Votamos
-POST {{baseUrl}}/survey/1/vote
+POST {{baseUrl}}/survey/{{idEncuesta}}/vote
 Content-Type: application/json
 
 {
@@ -48,17 +52,9 @@ Content-Type: application/json
   "optionIndex": 1
 }
 
-@idEncuesta=040c1578-4fb7-4d59-8325-038528a5655b
 
-### POST: Votamos
-POST {{baseUrl}}/survey/{{idEncuesta}}/vote
-Content-Type: application/json
 
-{
-  "optionIndex": 1
-}
-
-### POST: Votamos
+### POST: Votamos INVÁLIDA
 POST {{baseUrl}}/survey/{{idEncuesta}}/vote
 Content-Type: application/json
 
