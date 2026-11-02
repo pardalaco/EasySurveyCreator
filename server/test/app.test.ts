@@ -137,6 +137,92 @@ describe("GET /survey/:id", () => {
   });
 });
 
+describe("POST /survey/:id/vote", () => {
+  async function createSurvey() {
+    const res = await post("/survey", validSurvey);
+    return res.data as {
+      id: string;
+      options: Array<{ id: number; text: string; votes: number }>;
+    };
+  }
+
+  it("responde 200 incrementando los votos de la opción elegida", async () => {
+    const survey = await createSurvey();
+
+    const res = await post(`/survey/${survey.id}/vote`, { optionIndex: 1 });
+
+    expect(res.status).toBe(200);
+    expect(res.data.id).toBe(survey.id);
+    expect(res.data.options).toHaveLength(2);
+    expect(res.data.options[1].votes).toBe(1);
+    expect(res.data.options[0].votes).toBe(0);
+  });
+
+  it("acumula los votos en llamadas consecutivas", async () => {
+    const survey = await createSurvey();
+
+    await post(`/survey/${survey.id}/vote`, { optionIndex: 1 });
+    const res = await post(`/survey/${survey.id}/vote`, { optionIndex: 1 });
+
+    expect(res.status).toBe(200);
+    expect(res.data.options[1].votes).toBe(2);
+
+    const stored = await api.get(`/survey/${survey.id}`);
+    expect(stored.data.options[1].votes).toBe(2);
+  });
+
+  it("responde 404 si la encuesta no existe", async () => {
+    const res = await post(`/survey/${crypto.randomUUID()}/vote`, {
+      optionIndex: 1,
+    });
+
+    expect(res.status).toBe(404);
+    expect(res.data).toBe("No existe la encuesta");
+  });
+
+  it("responde 404 si la opción no existe en la encuesta", async () => {
+    const survey = await createSurvey();
+
+    const res = await post(`/survey/${survey.id}/vote`, { optionIndex: 99 });
+
+    expect(res.status).toBe(404);
+    expect(res.data).toBe("No existe la opción para esta encuesta");
+  });
+
+  it("responde 400 si falta optionIndex", async () => {
+    const survey = await createSurvey();
+
+    const res = await post(`/survey/${survey.id}/vote`, {});
+
+    expect(res.status).toBe(400);
+    expect(res.data).toContain('"optionIndex" is required');
+  });
+
+  it("responde 400 si optionIndex no es un número positivo", async () => {
+    const survey = await createSurvey();
+
+    const zero = await post(`/survey/${survey.id}/vote`, { optionIndex: 0 });
+    expect(zero.status).toBe(400);
+    expect(zero.data).toContain('"optionIndex" must be a positive number');
+
+    const negative = await post(`/survey/${survey.id}/vote`, {
+      optionIndex: -1,
+    });
+    expect(negative.status).toBe(400);
+    expect(negative.data).toContain('"optionIndex" must be a positive number');
+  });
+
+  it("responde 400 si el body no es JSON válido", async () => {
+    const survey = await createSurvey();
+
+    const res = await api.post(`/survey/${survey.id}/vote`, "{ no es json", {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    expect(res.status).toBe(500);
+  });
+});
+
 describe("rutas", () => {
   it("responde 404 para GET /survey", async () => {
     const res = await api.get("/survey");
