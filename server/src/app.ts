@@ -63,23 +63,10 @@ app.post(
     const body = req.body as VoteSchema;
     const optionIndex = body.optionIndex;
 
-    const survey = surveys.filter((s) => s.id === id)[0];
-    if (survey === undefined) {
-      const err = new HttpError(`No existe la encuesta`);
-      err.code = 404;
-      res.status(404).send(err);
-      return;
-    }
-
-    const options = survey.options;
-
-    let option = options.filter((s) => s.id === optionIndex)[0];
-    if (option === undefined) {
-      const err = new HttpError(`No existe la opción para esta encuesta`);
-      err.code = 404;
-      res.status(404).send(err);
-      return;
-    }
+    const survey = surveys.filter((s) => s.id === id)[0] as Survey;
+    let option = survey.options.filter(
+      (s) => s.id === optionIndex
+    )[0] as SurveyOption;
 
     let { votes } = option;
     votes += 1;
@@ -89,8 +76,6 @@ app.post(
       if (o.id === option.id) return option;
       else return o;
     });
-
-    console.log(survey.options);
 
     res.status(200).send(survey);
   }

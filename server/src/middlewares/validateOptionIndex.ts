@@ -9,12 +9,7 @@ export const validateOptionIndex =
     const body = req.body as VoteSchema;
     const optionIndex = body.optionIndex;
 
-    const survey = surveys.filter((s) => s.id === id)[0];
-    if (survey === undefined) {
-      const err = new HttpError(`No existe la encuesta`);
-      err.code = 404;
-      return next(err);
-    }
+    const survey = surveys.filter((s) => s.id === id)[0] as Survey;
 
     const options = survey.options;
 
