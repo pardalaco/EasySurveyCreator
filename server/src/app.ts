@@ -1,44 +1,44 @@
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
 import { validateSchema } from "./middlewares/validateSchema.js";
-import { surveyCreatorSchema } from "./schemas/suvery.js";
+import { surveyCreatorSchema } from "./schemas/survey.js";
 import { HttpError } from "./utils/httpError.js";
-import type { Suvery } from "./types/index.js";
+import type { Survey } from "./types/index.js";
 
-const suverys: Array<Suvery> = [];
+const surveys: Array<Survey> = [];
 
 const app = express();
 
 app.use(express.json());
 
-app.post("/suvery", validateSchema(surveyCreatorSchema), (req, res) => {
-  console.log("POST/suvery");
+app.post("/survey", validateSchema(surveyCreatorSchema), (req, res) => {
+  console.log("POST/survey");
 
-  const body = req.body as Suvery;
+  const body = req.body as Survey;
 
-  // Opcional: asegurarte de que cumple con el tipo Suvery
-  const newSurvey: Suvery = {
+  // Opcional: asegurarte de que cumple con el tipo Survey
+  const newSurvey: Survey = {
     ...body,
     id: String(crypto.randomUUID()),
   };
 
-  suverys.push(newSurvey);
+  surveys.push(newSurvey);
 
-  console.log(suverys);
+  console.log(surveys);
   res.send(newSurvey);
 });
 
-app.get("/suvery/:id", (req, res) => {
-  console.log("GET /suvery");
+app.get("/survey/:id", (req, res) => {
+  console.log("GET /survey");
 
   const id = req.params.id;
-  const suvery = suverys.find((s) => s.id === id);
-  if (!suvery) {
-    res.status(404).send("Suvery not found");
+  const survey = surveys.find((s) => s.id === id);
+  if (!survey) {
+    res.status(404).send("Survey not found");
     return;
   }
 
-  res.status(200).send(suvery);
+  res.status(200).send(survey);
 });
 
 app.use((req, res) => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { surveyCreatorSchema } from "../../src/schemas/suvery.js";
+import { surveyCreatorSchema } from "../../src/schemas/survey.js";
 
 const validSurvey = {
   question: "¿Cuál es tu lenguaje favorito?",

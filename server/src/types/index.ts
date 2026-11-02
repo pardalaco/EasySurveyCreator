@@ -1,10 +1,10 @@
-export interface SuveryOption {
+export interface SurveyOption {
   text: string;
   votes: number;
 }
 
-export interface Suvery {
+export interface Survey {
   id: string;
   question: string;
-  options: SuveryOption[];
+  options: SurveyOption[];
 }
