@@ -1,0 +1,228 @@
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
+import type { Server } from "node:http";
+import type { AddressInfo } from "node:net";
+import axios from "axios";
+import type { AxiosInstance } from "axios";
+import { app } from "../../src/app.js";
+
+describe("Routes /suvery", () => {
+  const validSurvey = {
+    question: "¿Cuál es tu lenguaje favorito?",
+    options: [{ text: "TypeScript" }, { text: "JavaScript" }],
+  };
+
+  let server: Server;
+  let api: AxiosInstance;
+
+  function post(path: string, body: unknown) {
+    return api.post(path, body);
+  }
+
+  beforeAll(async () => {
+    vi.spyOn(console, "log").mockImplementation(() => {});
+    server = await new Promise<Server>((resolve) => {
+      const listener = app.listen(0, () => resolve(listener));
+    });
+    const address = server.address() as AddressInfo;
+    api = axios.create({
+      baseURL: `http://127.0.0.1:${address.port}`,
+      validateStatus: () => true,
+    });
+  });
+
+  afterAll(async () => {
+    vi.restoreAllMocks();
+    await new Promise<void>((resolve, reject) => {
+      server.close((err) => (err ? reject(err) : resolve()));
+    });
+  });
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe("POST /survey", () => {
+    it("responde 200 con un body válido", async () => {
+      const res = await post("/survey", validSurvey);
+
+      expect(res.status).toBe(200);
+
+      const body = res.data;
+
+      // Verificamos que devuelva la encuesta enviada junto con un id generado
+      expect(body).toMatchObject({
+        question: validSurvey.question,
+        options: validSurvey.options,
+      });
+
+      expect(body).toHaveProperty("id");
+    });
+
+    it("responde 400 si falta la pregunta", async () => {
+      const res = await post("/survey", { options: validSurvey.options });
+
+      expect(res.status).toBe(400);
+      expect(res.data).toContain('"question" is required');
+    });
+
+    it("responde 400 con el body vacío", async () => {
+      const res = await post("/survey", {});
+
+      expect(res.status).toBe(400);
+      expect(res.data).toContain('"question" is required');
+    });
+
+    it("responde 400 si hay menos de 2 opciones", async () => {
+      const res = await post("/survey", {
+        question: "pregunta",
+        options: [{ text: "única" }],
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.data).toContain("must contain at least 2 items");
+    });
+
+    it("responde 400 si se envía el id", async () => {
+      const res = await post("/survey", { ...validSurvey, id: "123" });
+
+      expect(res.status).toBe(400);
+      expect(res.data).toContain('"id" is not allowed');
+    });
+
+    it("responde 500 con JSON malformado", async () => {
+      const res = await api.post("/survey", "{ no es json", {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      expect(res.status).toBe(500);
+    });
+
+    it("responde 400 si no se envía Content-Type JSON", async () => {
+      const res = await api.post("/survey", JSON.stringify(validSurvey), {
+        headers: { "Content-Type": false },
+      });
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe("GET /survey/:id", () => {
+    it("responde 200 con la encuesta creada", async () => {
+      const createdRes = await post("/survey", validSurvey);
+      const created = createdRes.data;
+
+      const res = await api.get(`/survey/${created.id}`);
+
+      expect(res.status).toBe(200);
+      expect(res.data).toMatchObject({
+        id: created.id,
+        timestamp: created.timestamp,
+        question: validSurvey.question,
+        options: validSurvey.options,
+      });
+    });
+
+    it("responde 404 si la encuesta no existe", async () => {
+      const res = await api.get(`/survey/${crypto.randomUUID()}`);
+
+      expect(res.status).toBe(404);
+      expect(res.data).toBe("Survey not found");
+    });
+  });
+
+  describe("POST /survey/:id/vote", () => {
+    async function createSurvey() {
+      const res = await post("/survey", validSurvey);
+      return res.data as {
+        id: string;
+        options: Array<{ id: number; text: string; votes: number }>;
+      };
+    }
+
+    it("responde 200 incrementando los votos de la opción elegida", async () => {
+      const survey = await createSurvey();
+
+      const res = await post(`/survey/${survey.id}/vote`, { optionIndex: 1 });
+
+      expect(res.status).toBe(200);
+      expect(res.data.id).toBe(survey.id);
+      expect(res.data.options).toHaveLength(2);
+      expect(res.data.options[1].votes).toBe(1);
+      expect(res.data.options[0].votes).toBe(0);
+    });
+
+    it("acumula los votos en llamadas consecutivas", async () => {
+      const survey = await createSurvey();
+
+      await post(`/survey/${survey.id}/vote`, { optionIndex: 1 });
+      const res = await post(`/survey/${survey.id}/vote`, { optionIndex: 1 });
+
+      expect(res.status).toBe(200);
+      expect(res.data.options[1].votes).toBe(2);
+
+      const stored = await api.get(`/survey/${survey.id}`);
+      expect(stored.data.options[1].votes).toBe(2);
+    });
+
+    it("responde 404 si la encuesta no existe", async () => {
+      const res = await post(`/survey/${crypto.randomUUID()}/vote`, {
+        optionIndex: 1,
+      });
+
+      expect(res.status).toBe(404);
+      expect(res.data).toBe("No existe la encuesta");
+    });
+
+    it("responde 404 si la opción no existe en la encuesta", async () => {
+      const survey = await createSurvey();
+
+      const res = await post(`/survey/${survey.id}/vote`, { optionIndex: 99 });
+
+      expect(res.status).toBe(404);
+      expect(res.data).toBe("No existe la opción para esta encuesta");
+    });
+
+    it("responde 400 si falta optionIndex", async () => {
+      const survey = await createSurvey();
+
+      const res = await post(`/survey/${survey.id}/vote`, {});
+
+      expect(res.status).toBe(400);
+      expect(res.data).toContain('"optionIndex" is required');
+    });
+
+    it("responde 400 si optionIndex no es un número positivo", async () => {
+      const survey = await createSurvey();
+
+      const zero = await post(`/survey/${survey.id}/vote`, { optionIndex: 0 });
+      expect(zero.status).toBe(400);
+      expect(zero.data).toContain('"optionIndex" must be a positive number');
+
+      const negative = await post(`/survey/${survey.id}/vote`, {
+        optionIndex: -1,
+      });
+      expect(negative.status).toBe(400);
+      expect(negative.data).toContain(
+        '"optionIndex" must be a positive number'
+      );
+    });
+
+    it("responde 400 si el body no es JSON válido", async () => {
+      const survey = await createSurvey();
+
+      const res = await api.post(`/survey/${survey.id}/vote`, "{ no es json", {
+        headers: { "Content-Type": "application/json" },
+      });
+
+      expect(res.status).toBe(500);
+    });
+  });
+});
