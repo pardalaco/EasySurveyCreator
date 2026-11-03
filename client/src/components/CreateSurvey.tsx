@@ -26,6 +26,12 @@ export default function CreateSurvey() {
     }
   };
 
+  const handleDeleteOption = (index: number): void => {
+    const newOption = [...options];
+    newOption.splice(index, 1);
+    setOptions(newOption);
+  };
+
   return (
     <Box minH="100vh" bg="gray.50" py={10} px={4}>
       <VStack gap={8} maxW="md" mx="auto" align="stretch">
@@ -64,18 +70,32 @@ export default function CreateSurvey() {
           {/* Opciones */}
           <VStack gap={3} w="full" pt={2}>
             {options.map((option, index) => (
-              <Input
-                key={index}
-                placeholder={`Option ${index + 1}`}
-                value={option}
-                bg="white"
-                size="lg"
-                borderRadius="xl"
-                boxShadow="sm"
-                border="none"
-                _placeholder={{ color: "gray.400" }}
-                _focus={{ boxShadow: "md", border: "none" }}
-              />
+              <HStack key={index} w="full" gap={2}>
+                {" "}
+                <Input
+                  key={index}
+                  placeholder={`Option ${index + 1}`}
+                  value={option}
+                  bg="white"
+                  size="lg"
+                  borderRadius="xl"
+                  boxShadow="sm"
+                  border="none"
+                  _placeholder={{ color: "gray.400" }}
+                  _focus={{ boxShadow: "md", border: "none" }}
+                />
+                {options.length > 2 && (
+                  <Button
+                    variant="surface"
+                    colorScheme="gray"
+                    size="md"
+                    borderRadius="xl"
+                    onClick={() => handleDeleteOption(index)}
+                  >
+                    ✕
+                  </Button>
+                )}
+              </HStack>
             ))}
           </VStack>
 
