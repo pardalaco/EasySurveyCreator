@@ -12,6 +12,7 @@ server/dist/
 .env.local
 .env.*.local
 *.env
+!example.env
 
 # Registros de errores y logs
 npm-debug.log*
