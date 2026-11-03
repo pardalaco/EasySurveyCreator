@@ -27,7 +27,7 @@ router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
   // Opcional: asegurarte de que cumple con el tipo Survey
   const newSurvey: Survey = {
     ...body,
-    id: String(crypto.randomUUID()),
+    id: String(crypto.randomUUID().replace(/-/g, "").slice(0, 8)),
     options: options,
     timestamp: new Date(),
   };
