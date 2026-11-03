@@ -1,12 +1,11 @@
-import { Button, HStack } from "@chakra-ui/react";
+import CreateSurvey from "./components/CreateSurvey";
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
   return (
     <>
-      <HStack>
-        <Button>Click me</Button>
-        <Button>Click me</Button>
-      </HStack>
+      <CreateSurvey />
+      <Toaster />
     </>
   );
 }
