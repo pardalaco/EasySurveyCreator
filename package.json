@@ -9,8 +9,8 @@
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run",
-    "format": "prettier --write \"src/**/*.{ts,tsx,json,css,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,json,css,md}\"",
+    "format": "prettier --write \"{server,client}/**/*.{ts,tsx,json,css,md}\" \"*.{json,md}\"",
+    "format:check": "prettier --check \"{server,client}/**/*.{ts,tsx,json,css,md}\" \"*.{json,md}\"",
     "prepare": "husky"
   },
   "keywords": [],
