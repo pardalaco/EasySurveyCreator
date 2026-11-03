@@ -4,13 +4,15 @@ import { validateSchema } from "../middlewares/validateSchema.js";
 import { validateSurveyId } from "../middlewares/validateSurveyId.js";
 import { surveyCreatorSchema, surveyVoteSchema } from "../schemas/survey.js";
 import type { Survey, SurveyOption, VoteSchema } from "../types/index.js";
+import debug from "debug";
 
 const surveys: Array<Survey> = [];
 
 const router = express.Router();
+const log = debug("mi-app:surveys");
 
 router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
-  console.log("POST/survey");
+  log(`POST /survey - ${req.ip}`);
 
   const body = req.body as Survey;
 
@@ -32,12 +34,11 @@ router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
 
   surveys.push(newSurvey);
 
-  console.log(surveys);
   res.send(newSurvey);
 });
 
 router.get("/:id", (req, res) => {
-  console.log("GET /survey");
+  log(`GET /survey - ${req.ip}`);
 
   const id = req.params.id;
   const survey = surveys.find((s) => s.id === id);
@@ -58,6 +59,8 @@ router.post(
     const id = req.params.id;
     const body = req.body as VoteSchema;
     const optionIndex = body.optionIndex;
+
+    log(`GET /survey/${id}/vote - ${optionIndex} - ${req.ip}`);
 
     const survey = surveys.filter((s) => s.id === id)[0] as Survey;
     let option = survey.options.filter(
