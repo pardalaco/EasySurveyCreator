@@ -5,6 +5,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import { type Survey as SurveyType } from "../types/index.js";
 import ErrorPage from "./ErrorPage";
+import LoadingPage from "./Loading.js";
 
 type Props = {};
 
@@ -22,7 +23,7 @@ function Survey({}: Props) {
   });
 
   if (isLoading) {
-    return <h1>Cargando</h1>;
+    return <LoadingPage />;
   }
 
   if (error || !data) {
@@ -36,7 +37,7 @@ function Survey({}: Props) {
     <>
       <Box minH="100vh" bg="gray.50" py={10} px={4}>
         <VStack gap={8} maxW="md" mx="auto" align="stretch">
-          {/* Header / Logo */}
+          {/* Header  */}
           <HStack justify="center" gap={2}>
             <Text fontSize="2xl" fontWeight="bold" letterSpacing="tight">
               Easy Suvery Creator
