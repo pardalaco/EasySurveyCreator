@@ -30,6 +30,24 @@ export default function CreateSurvey() {
     setOptions(newOption);
   };
 
+  const handleCreateSuvery = (): void => {
+    if (question === "") {
+      toaster.create({
+        description: "You must include a question to create the survey.",
+        type: "warning",
+      });
+      return;
+    }
+    if (options.some((o) => o === "")) {
+      toaster.create({
+        description:
+          "You must complete the options in order to create the survey.",
+        type: "warning",
+      });
+      return;
+    }
+  };
+
   return (
     <Box minH="100vh" bg="gray.50" py={10} px={4}>
       <VStack gap={8} maxW="md" mx="auto" align="stretch">
@@ -129,6 +147,7 @@ export default function CreateSurvey() {
             mt={4}
             _hover={{ bg: "gray.800" }}
             _active={{ bg: "gray.900" }}
+            onClick={handleCreateSuvery}
           >
             Create Suvery!
           </Button>
