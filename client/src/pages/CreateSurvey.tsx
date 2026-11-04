@@ -63,11 +63,7 @@ export default function CreateSurvey() {
 
       const response = await axios.post(`${apiUrl}/survey`, payload);
 
-      console.log(response);
-
-      // Si la petición es exitosa (código 2xx)
-      // Nos redirigimos a la url...
-      navegate("/1");
+      navegate(`/${response.data.id}`);
     } catch (error: any) {
       // Si Axios detecta un error HTTP (ej. 400, 500) o un error de red
       const errorMessage =
