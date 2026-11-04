@@ -17,8 +17,6 @@ export default function CreateSurvey() {
   const handleAddOption = (): void => {
     if (options.length < 5) setOptions([...options, ""]);
     else {
-      console.log("Hola");
-
       toaster.create({
         description: "The maximum number of options has been reached.",
         type: "warning",
@@ -58,6 +56,7 @@ export default function CreateSurvey() {
           <Input
             placeholder="What's your question?"
             value={question}
+            onChange={(e) => setQuestion(e.target.value)}
             bg="white"
             size="lg"
             borderRadius="xl"
@@ -76,6 +75,11 @@ export default function CreateSurvey() {
                   key={index}
                   placeholder={`Option ${index + 1}`}
                   value={option}
+                  onChange={(e) => {
+                    const newOptions = [...options];
+                    newOptions[index] = e.target.value;
+                    setOptions(newOptions);
+                  }}
                   bg="white"
                   size="lg"
                   borderRadius="xl"
