@@ -9,6 +9,7 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
+import axios from "axios";
 
 export default function CreateSurvey() {
   const [options, setOptions] = useState<string[]>(["", ""]);
@@ -30,7 +31,7 @@ export default function CreateSurvey() {
     setOptions(newOption);
   };
 
-  const handleCreateSuvery = (): void => {
+  const handleCreateSuvery = async (): Promise<void> => {
     if (question === "") {
       toaster.create({
         description: "You must include a question to create the survey.",
@@ -45,6 +46,35 @@ export default function CreateSurvey() {
         type: "warning",
       });
       return;
+    }
+
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL;
+
+      const payload = {
+        question: question,
+        options: options.map((o) => ({
+          text: o,
+        })),
+      };
+
+      const response = await axios.post(`${apiUrl}/survey`, payload);
+
+      console.log(response);
+
+      // Si la petición es exitosa (código 2xx)
+      // Nos redirigimos a la url...
+    } catch (error: any) {
+      // Si Axios detecta un error HTTP (ej. 400, 500) o un error de red
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Error creating the survey.";
+
+      toaster.create({
+        description: errorMessage,
+        type: "error",
+      });
     }
   };
 
