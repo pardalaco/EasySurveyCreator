@@ -125,11 +125,13 @@ export default function CreateSurvey() {
           {options.length < 5 && (
             <HStack justify="flex-end" w="full">
               <Button
+                variant={"ghost"}
                 color="gray.700"
                 fontSize="sm"
+                borderRadius="xl"
                 fontWeight="medium"
                 onClick={handleAddOption}
-                _hover={{ textDecoration: "none", color: "black" }}
+                _hover={{ textDecoration: "none", color: "white" }}
               >
                 + Add Option
               </Button>
@@ -149,7 +151,7 @@ export default function CreateSurvey() {
             _active={{ bg: "gray.900" }}
             onClick={handleCreateSuvery}
           >
-            Create Suvery!
+            Create Survey!
           </Button>
         </VStack>
       </VStack>
