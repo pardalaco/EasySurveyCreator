@@ -11,10 +11,12 @@ import {
 import { toaster } from "@/components/ui/toaster";
 import axios from "axios";
 import { Toaster } from "@/components/ui/toaster";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateSurvey() {
   const [options, setOptions] = useState<string[]>(["", ""]);
   const [question, setQuestion] = useState<string>("");
+  const navegate = useNavigate();
 
   const handleAddOption = (): void => {
     if (options.length < 5) setOptions([...options, ""]);
@@ -65,6 +67,7 @@ export default function CreateSurvey() {
 
       // Si la petición es exitosa (código 2xx)
       // Nos redirigimos a la url...
+      navegate("/1");
     } catch (error: any) {
       // Si Axios detecta un error HTTP (ej. 400, 500) o un error de red
       const errorMessage =
