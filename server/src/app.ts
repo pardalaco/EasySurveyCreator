@@ -55,4 +55,4 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
   log(`${req.method} ${req.url} - Error ${errCode}: ${err.message}`);
 });
 
-export { server };
+export { app, server, io };
