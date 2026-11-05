@@ -4,6 +4,7 @@ import { HttpError } from "./utils/httpError.js";
 import surveyRoute from "./routes/survey.js";
 import cors from "cors";
 import debug from "debug";
+import { inputValidationMiddleware } from "./middlewares/inputValidation.js";
 
 const app = express();
 const log = debug("mi-app:surveys");
@@ -15,6 +16,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
+app.use(inputValidationMiddleware);
 
 app.use("/survey", surveyRoute);
 

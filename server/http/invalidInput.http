@@ -1,0 +1,15 @@
+@baseUrl = http://localhost:3000
+
+### Intento de Inyección NoSQL (Debe fallar con Error 400)
+# @name crearEncuestaInyeccion
+POST {{baseUrl}}/survey
+Content-Type: application/json
+
+{
+  "question": "¿Cuál es tu framework favorito?",
+  "options": [
+    { "text": "Express" },
+    { "text": "Fastify" }
+  ],
+  "$where": "this.password == ''"
+}
