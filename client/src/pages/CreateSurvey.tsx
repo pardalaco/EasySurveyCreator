@@ -1,16 +1,15 @@
-import { useState } from "react";
+import { Toaster, toaster } from "@/components/ui/toaster";
 import {
   Box,
-  VStack,
+  Button,
   HStack,
   Heading,
-  Text,
   Input,
-  Button,
+  Text,
+  VStack,
 } from "@chakra-ui/react";
-import { toaster } from "@/components/ui/toaster";
 import axios from "axios";
-import { Toaster } from "@/components/ui/toaster";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function CreateSurvey() {
