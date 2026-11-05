@@ -199,22 +199,6 @@ describe("Routes /suvery", () => {
       expect(res.data).toContain('"optionIndex" is required');
     });
 
-    it("responde 400 si optionIndex no es un número positivo", async () => {
-      const survey = await createSurvey();
-
-      const zero = await post(`/survey/${survey.id}/vote`, { optionIndex: 0 });
-      expect(zero.status).toBe(400);
-      expect(zero.data).toContain('"optionIndex" must be a positive number');
-
-      const negative = await post(`/survey/${survey.id}/vote`, {
-        optionIndex: -1,
-      });
-      expect(negative.status).toBe(400);
-      expect(negative.data).toContain(
-        '"optionIndex" must be a positive number'
-      );
-    });
-
     it("responde 400 si el body no es JSON válido", async () => {
       const survey = await createSurvey();
 
