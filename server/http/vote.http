@@ -23,5 +23,13 @@ POST {{baseUrl}}/survey/{{idEncuesta}}/vote
 Content-Type: application/json
 
 {
+  "optionIndex": 0
+}
+
+### POST: Votamos
+POST {{baseUrl}}/survey/{{idEncuesta}}/vote
+Content-Type: application/json
+
+{
   "optionIndex": 1
 }

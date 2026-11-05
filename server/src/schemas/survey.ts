@@ -4,7 +4,6 @@ import type { Survey, SurveyOption, VoteSchema } from "../types/index.js";
 // Esquema para validar cada opción individual de la encuesta
 const surveyOptionSchema = Joi.object<SurveyOption>({
   id: Joi.number()
-    .positive()
     .forbidden()
     .alter({
       create: (s) => s.forbidden(),
@@ -30,7 +29,7 @@ const surveyCreatorSchema = Joi.object<Survey>({
 });
 
 const surveyVoteSchema = Joi.object<VoteSchema>({
-  optionIndex: Joi.number().positive().forbidden().required(),
+  optionIndex: Joi.number().forbidden().required(),
 });
 
 export { surveyCreatorSchema, surveyVoteSchema };
