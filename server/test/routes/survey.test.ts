@@ -1,5 +1,6 @@
 import {
   afterAll,
+  afterEach,
   beforeAll,
   beforeEach,
   describe,
@@ -7,11 +8,18 @@ import {
   it,
   vi,
 } from "vitest";
-import type { Server } from "node:http";
 import type { AddressInfo } from "node:net";
 import axios from "axios";
 import type { AxiosInstance } from "axios";
-import { app } from "../../src/app.js";
+import { io, server } from "../../src/app.js";
+import { io as ioClient, Socket } from "socket.io-client";
+
+type EmittedSurvey = {
+  id: string;
+  timestamp: string;
+  question: string;
+  options: Array<{ id: number; text: string; votes: number }>;
+};
 
 describe("Routes /suvery", () => {
   const validSurvey = {
@@ -19,7 +27,6 @@ describe("Routes /suvery", () => {
     options: [{ text: "TypeScript" }, { text: "JavaScript" }],
   };
 
-  let server: Server;
   let api: AxiosInstance;
 
   function post(path: string, body: unknown) {
@@ -28,8 +35,8 @@ describe("Routes /suvery", () => {
 
   beforeAll(async () => {
     vi.spyOn(console, "log").mockImplementation(() => {});
-    server = await new Promise<Server>((resolve) => {
-      const listener = app.listen(0, () => resolve(listener));
+    await new Promise<void>((resolve) => {
+      server.listen(0, () => resolve());
     });
     const address = server.address() as AddressInfo;
     api = axios.create({
@@ -40,9 +47,8 @@ describe("Routes /suvery", () => {
 
   afterAll(async () => {
     vi.restoreAllMocks();
-    await new Promise<void>((resolve, reject) => {
-      server.close((err) => (err ? reject(err) : resolve()));
-    });
+    server.closeAllConnections();
+    await io.close();
   });
 
   beforeEach(() => {
@@ -207,6 +213,108 @@ describe("Routes /suvery", () => {
       });
 
       expect(res.status).toBe(500);
+    });
+  });
+
+  describe("Socket.io", () => {
+    const clients: Socket[] = [];
+
+    function connectClient(): Promise<Socket> {
+      const address = server.address() as AddressInfo;
+      const client = ioClient(`http://127.0.0.1:${address.port}`, {
+        transports: ["websocket"],
+        forceNew: true,
+      });
+      clients.push(client);
+
+      return new Promise((resolve, reject) => {
+        const onError = (err: Error) => reject(err);
+        client.once("connect", () => {
+          client.off("connect_error", onError);
+          resolve(client);
+        });
+        client.once("connect_error", onError);
+      });
+    }
+
+    function waitForEvent(
+      client: Socket,
+      event: string
+    ): Promise<EmittedSurvey> {
+      return new Promise((resolve) => {
+        client.once(event, resolve);
+      });
+    }
+
+    afterEach(() => {
+      for (const client of clients) {
+        client.disconnect();
+      }
+      clients.length = 0;
+    });
+
+    it("permite conectar un cliente al servidor", async () => {
+      const client = await connectClient();
+
+      expect(client.connected).toBe(true);
+    });
+
+    it("emite update-vote-{id} con la encuesta actualizada al votar", async () => {
+      const createdRes = await post("/survey", validSurvey);
+      const surveyId = createdRes.data.id as string;
+
+      const client = await connectClient();
+      const eventPromise = waitForEvent(client, `update-vote-${surveyId}`);
+
+      const voteRes = await post(`/survey/${surveyId}/vote`, {
+        optionIndex: 1,
+      });
+
+      const emitted = await eventPromise;
+
+      expect(emitted.id).toBe(surveyId);
+      expect(emitted).toEqual(voteRes.data);
+      expect(emitted.options).toHaveLength(2);
+      expect(emitted.options[1]?.votes).toBe(1);
+      expect(emitted.options[0]?.votes).toBe(0);
+    });
+
+    it("notifica a todos los clientes conectados", async () => {
+      const createdRes = await post("/survey", validSurvey);
+      const surveyId = createdRes.data.id as string;
+
+      const clientA = await connectClient();
+      const clientB = await connectClient();
+
+      const eventA = waitForEvent(clientA, `update-vote-${surveyId}`);
+      const eventB = waitForEvent(clientB, `update-vote-${surveyId}`);
+
+      await post(`/survey/${surveyId}/vote`, { optionIndex: 0 });
+
+      const [emittedA, emittedB] = await Promise.all([eventA, eventB]);
+
+      expect(emittedA.options[0]?.votes).toBe(1);
+      expect(emittedB.options[0]?.votes).toBe(1);
+      expect(emittedA).toEqual(emittedB);
+    });
+
+    it("no emite el evento si el voto es de otra encuesta", async () => {
+      const createdRes = await post("/survey", validSurvey);
+      const surveyId = createdRes.data.id as string;
+      const otherId = crypto.randomUUID();
+
+      const client = await connectClient();
+
+      let otherEventReceived = false;
+      client.once(`update-vote-${otherId}`, () => {
+        otherEventReceived = true;
+      });
+
+      const eventPromise = waitForEvent(client, `update-vote-${surveyId}`);
+      await post(`/survey/${surveyId}/vote`, { optionIndex: 1 });
+      await eventPromise;
+
+      expect(otherEventReceived).toBe(false);
     });
   });
 });
