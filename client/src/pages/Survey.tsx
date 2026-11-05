@@ -23,6 +23,7 @@ function Survey({}: Props) {
   const [votedOptions, setVotedOptions] = useState<SurveyOption[]>([]);
   const [hasVoted, setHasVoted] = useState(false);
   const [totalVotes, setTotalVotes] = useState(0);
+  const [votedOptionIndex, setVotedOptionIndex] = useState(-1);
 
   const { error, data, isLoading } = useQuery({
     queryKey: ["survey", idSurvey],
@@ -65,6 +66,7 @@ function Survey({}: Props) {
   });
 
   const handleVote = (optionIndex: number) => {
+    setVotedOptionIndex(optionIndex);
     mutate(optionIndex);
   };
 
@@ -78,6 +80,44 @@ function Survey({}: Props) {
 
   const question = data.question;
   const options = data.options;
+
+  const renderVotingContent = () => {
+    if (isPending) {
+      return options.map((option, index) => {
+        const percentage = index === votedOptionIndex ? 100 : 0;
+
+        return (
+          <BoxVote key={index} percentage={percentage}>
+            {option.text}
+          </BoxVote>
+        );
+      });
+    }
+
+    if (hasVoted) {
+      return votedOptions.map((option, index) => {
+        const optionVotes = option.votes || 0;
+        const percentage =
+          totalVotes > 0 ? Math.round((optionVotes / totalVotes) * 100) : 0;
+
+        return (
+          <BoxVote key={index} percentage={percentage}>
+            {option.text}
+          </BoxVote>
+        );
+      });
+    }
+
+    return options.map((option, index) => (
+      <ButtonOption
+        key={index}
+        index={index}
+        handleClick={() => handleVote(index)}
+      >
+        {option.text}
+      </ButtonOption>
+    ));
+  };
 
   return (
     <>
@@ -97,34 +137,7 @@ function Survey({}: Props) {
 
           {/* Formulario de la encuesta */}
           <VStack gap={4} w="full">
-            <VStack gap={3} w="full" pt={2}>
-              {isPending && <Text>Enviando voto...</Text>}
-
-              {hasVoted
-                ? votedOptions.map((option, index) => {
-                    const optionVotes = option.votes || 0;
-
-                    const percentage =
-                      totalVotes > 0
-                        ? Math.round((optionVotes / totalVotes) * 100)
-                        : 0;
-
-                    return (
-                      <BoxVote key={index} percentage={percentage}>
-                        {option.text}
-                      </BoxVote>
-                    );
-                  })
-                : options.map((option, index) => (
-                    <ButtonOption
-                      key={index}
-                      index={index}
-                      handleClick={() => handleVote(index)}
-                    >
-                      {option.text}
-                    </ButtonOption>
-                  ))}
-            </VStack>
+            {renderVotingContent()}
           </VStack>
         </VStack>
       </Box>
