@@ -3,8 +3,10 @@ import express from "express";
 import { HttpError } from "./utils/httpError.js";
 import surveyRoute from "./routes/survey.js";
 import cors from "cors";
+import debug from "debug";
 
 const app = express();
+const log = debug("mi-app:surveys");
 
 const corsOptions = {
   origin: process.env.CLIENT_URL,
@@ -18,11 +20,13 @@ app.use("/survey", surveyRoute);
 
 app.use((req, res) => {
   res.status(404).send("La página que estas buscando no existe");
-  console.log(`404 Not found: ${req.method} ${req.url}`);
+  log(`${req.method} ${req.url} - 404 Not found`);
 });
 
 app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
-  res.status(err.code || 500).send(err.message);
+  const errCode = err.code || 500;
+  res.status(errCode).send(err.message);
+  log(`${req.method} ${req.url} - Error ${errCode}: ${err.message}`);
 });
 
 export { app };

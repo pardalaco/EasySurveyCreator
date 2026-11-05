@@ -12,7 +12,9 @@ const router = express.Router();
 const log = debug("mi-app:surveys");
 
 router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
-  log(`POST /survey - ${req.ip}`);
+  const surveyId = String(crypto.randomUUID().replace(/-/g, "").slice(0, 8));
+
+  log(`POST /survey - ${surveyId} - ${req.ip}`);
 
   const body = req.body as Survey;
 
@@ -27,7 +29,7 @@ router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
   // Opcional: asegurarte de que cumple con el tipo Survey
   const newSurvey: Survey = {
     ...body,
-    id: String(crypto.randomUUID().replace(/-/g, "").slice(0, 8)),
+    id: surveyId,
     options: options,
     timestamp: new Date(),
   };
@@ -38,11 +40,12 @@ router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
 });
 
 router.get("/:id", (req, res) => {
-  log(`GET /survey - ${req.ip}`);
-
   const id = req.params.id;
+  log(`GET /survey/${id} - ${req.ip}`);
+
   const survey = surveys.find((s) => s.id === id);
   if (!survey) {
+    log(`${req.method} /survey${req.url} - 404 Not found`);
     res.status(404).send("Survey not found");
     return;
   }

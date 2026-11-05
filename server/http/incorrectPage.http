@@ -1,0 +1,21 @@
+@baseUrl=http://localhost:3000
+
+### POST: Crea una nueva encuesta
+# @name crearEncuesta
+POST {{baseUrl}}/aaa
+Content-Type: application/json
+
+{
+  "question": "¿Cuál es tu framework favorito?",
+  "options": [
+    { "text": "Express" },
+    { "text": "Fastify" }
+  ]
+}
+
+
+### GET: Obtenemos la encuesta recien creada
+GET {{baseUrl}}/aaa
+
+### GET: Obtenemos la encuesta recien creada
+GET {{baseUrl}}/survey/aaa
