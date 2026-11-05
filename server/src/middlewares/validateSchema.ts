@@ -9,7 +9,7 @@ export const validateSchema =
 
     if (error) {
       const errorMessage = error.details?.[0]?.message || "Error de validación";
-      const err = new HttpError(error.message);
+      const err = new HttpError(errorMessage);
       err.code = 400;
       return next(err);
     }
