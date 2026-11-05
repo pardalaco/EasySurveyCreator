@@ -5,10 +5,34 @@ import surveyRoute from "./routes/survey.js";
 import cors from "cors";
 import debug from "debug";
 import { inputValidationMiddleware } from "./middlewares/inputValidation.js";
+import http from "http";
+import { Server } from "socket.io";
 
 const app = express();
 const log = debug("mi-app:surveys");
 
+// Configuración del Socket.io
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
+
+// Guardar `io` en app para poder usarlo dentro de tus controladores/rutas si lo necesitas
+app.set("io", io);
+
+// Escuchar conexiones básicas de los clientes
+io.on("connection", (socket) => {
+  log(`Cliente conectado: ${socket.id}`);
+
+  socket.on("disconnect", () => {
+    log(`Cliente desconectado: ${socket.id}`);
+  });
+});
+
+// Configuración de cors
 const corsOptions = {
   origin: process.env.CLIENT_URL,
   optionsSuccessStatus: 200,
@@ -31,4 +55,4 @@ app.use((err: HttpError, req: Request, res: Response, next: NextFunction) => {
   log(`${req.method} ${req.url} - Error ${errCode}: ${err.message}`);
 });
 
-export { app };
+export { server };

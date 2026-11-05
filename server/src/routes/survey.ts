@@ -5,6 +5,7 @@ import { validateSurveyId } from "../middlewares/validateSurveyId.js";
 import { surveyCreatorSchema, surveyVoteSchema } from "../schemas/survey.js";
 import type { Survey, SurveyOption, VoteSchema } from "../types/index.js";
 import debug from "debug";
+import { HttpError } from "../utils/httpError.js";
 
 const surveys: Array<Survey> = [];
 
@@ -78,6 +79,9 @@ router.post(
       if (o.id === option.id) return option;
       else return o;
     });
+
+    const io = req.app.get("io"); // Obtener la instancia de Socket.io desde Express y emitir a todos
+    io.emit(`update-vote-${id}`, survey);
 
     res.status(200).send(survey);
   }

@@ -3,8 +3,9 @@ import { Toaster, toaster } from "@/components/ui/toaster";
 import { Box, HStack, Heading, Text, VStack } from "@chakra-ui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { io, Socket } from "socket.io-client";
 import ButtonOption from "../components/ButtonOption.js";
 import {
   type SurveyOption,
@@ -32,6 +33,31 @@ function Survey({}: Props) {
         .get<SurveyType>(`${apiUrl}/survey/${idSurvey}`)
         .then((response) => response.data),
   });
+
+  // Efecto para conectar al socket SOLO cuando el usuario ya ha votado
+  useEffect(() => {
+    if (!hasVoted || !idSurvey) return;
+
+    const socket: Socket = io(apiUrl);
+
+    const eventoNombre = `update-vote-${idSurvey}`;
+
+    socket.on(eventoNombre, (surveyActualizada: SurveyType) => {
+      const options = surveyActualizada.options;
+      setVotedOptions(options);
+
+      const sumVotes = options.reduce(
+        (acc, option) => acc + (option.votes || 0),
+        0
+      );
+      setTotalVotes(sumVotes);
+    });
+
+    // Limpieza: desconectar el socket si el componente se desmonta
+    return () => {
+      socket.disconnect();
+    };
+  }, [hasVoted, idSurvey]);
 
   const { mutate, isPending } = useMutation({
     mutationFn: (optionIndex: number) =>
