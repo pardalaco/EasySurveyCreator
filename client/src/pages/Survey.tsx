@@ -1,5 +1,5 @@
 import BoxVote from "@/components/BoxVote.js";
-import CollapseQrCode from "@/components/collapsibleQRcode.js";
+import CollapseQrCode from "@/components/CollapsibleQRcode.js";
 import { Toaster, toaster } from "@/components/ui/toaster";
 import { Box, Button, HStack, Heading, Text, VStack } from "@chakra-ui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";

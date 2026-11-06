@@ -47,4 +47,4 @@ function CollapsibleQRcode({ link }: Props) {
   );
 }
 
-export default collapsibleQRcode;
+export default CollapsibleQRcode;
