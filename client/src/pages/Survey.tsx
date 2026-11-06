@@ -1,6 +1,14 @@
 import BoxVote from "@/components/BoxVote.js";
 import { Toaster, toaster } from "@/components/ui/toaster";
-import { Box, HStack, Heading, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  Heading,
+  Text,
+  VStack,
+  useClipboard,
+  Button,
+} from "@chakra-ui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -13,6 +21,7 @@ import {
 } from "../types/index.js";
 import ErrorPage from "./ErrorPage";
 import LoadingPage from "./Loading.js";
+import { LuCopy, LuCheck } from "react-icons/lu";
 
 type Props = {};
 
@@ -21,6 +30,18 @@ function Survey({}: Props) {
   const params = useParams();
   const idSurvey = params.idSurvey;
 
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const [hasCopied, setHasCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setHasCopied(true);
+      setTimeout(() => setHasCopied(false), 2000); // Vuelve al estado original a los 2 segundos
+    } catch (err) {
+      console.error("Error al copiar al portapapeles", err);
+    }
+  };
   const [votedOptions, setVotedOptions] = useState<SurveyOption[]>([]);
   const [hasVoted, setHasVoted] = useState(false);
   const [totalVotes, setTotalVotes] = useState(0);
@@ -165,6 +186,19 @@ function Survey({}: Props) {
           <VStack gap={4} w="full">
             {renderVotingContent()}
           </VStack>
+
+          {/* Link copiar al portapapeles */}
+          <Button
+            onClick={handleCopy}
+            bg="black"
+            color="white"
+            _hover={{ bg: "gray.800" }}
+            width="full"
+            mt={10}
+          >
+            {hasCopied ? <LuCheck /> : <LuCopy />}
+            {hasCopied ? "¡Enlace copiado!" : "Copiar enlace de la encuesta"}
+          </Button>
         </VStack>
       </Box>
       <Toaster />
