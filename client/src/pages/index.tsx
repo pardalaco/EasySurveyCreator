@@ -7,6 +7,7 @@ const router = createBrowserRouter([
   { path: "/", element: <CreateSurvey /> }, // Primera ruta
   { path: "/:idSurvey", element: <Survey /> },
   { path: "/error", element: <ErrorPage /> },
+  { path: "*", element: <ErrorPage /> },
 ]);
 
 export default router;
