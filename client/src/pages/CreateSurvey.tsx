@@ -84,14 +84,14 @@ export default function CreateSurvey() {
           {/* Header / Logo */}
           <HStack justify="center" gap={2}>
             <Text fontSize="2xl" fontWeight="bold" letterSpacing="tight">
-              Easy Suvery Creator
+              Easy Survey Creator
             </Text>
           </HStack>
 
           {/* Título */}
           <VStack gap={1} textAlign="center">
             <Heading as="h1" size="lg" fontWeight="extrabold">
-              Create your Suvery.
+              Create your Survey.
             </Heading>
             <Heading as="h2" size="lg" fontWeight="extrabold">
               No sign up required.
