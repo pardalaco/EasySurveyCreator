@@ -1,27 +1,20 @@
 import BoxVote from "@/components/BoxVote.js";
+import CollapseQrCode from "@/components/collapsibleQRcode.js";
 import { Toaster, toaster } from "@/components/ui/toaster";
-import {
-  Box,
-  HStack,
-  Heading,
-  Text,
-  VStack,
-  useClipboard,
-  Button,
-} from "@chakra-ui/react";
+import { Box, Button, HStack, Heading, Text, VStack } from "@chakra-ui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { LuCheck, LuCopy } from "react-icons/lu";
 import { useParams } from "react-router-dom";
-import { io, Socket } from "socket.io-client";
-import ButtonOption from "../components/ButtonOption.js";
+import { Socket, io } from "socket.io-client";
+import ButtonOption from "@/components/ButtonOption.js";
 import {
   type SurveyOption,
   type Survey as SurveyType,
 } from "../types/index.js";
 import ErrorPage from "./ErrorPage";
 import LoadingPage from "./Loading.js";
-import { LuCopy, LuCheck } from "react-icons/lu";
 
 type Props = {};
 
@@ -199,6 +192,9 @@ function Survey({}: Props) {
             {hasCopied ? <LuCheck /> : <LuCopy />}
             {hasCopied ? "¡Enlace copiado!" : "Copiar enlace de la encuesta"}
           </Button>
+
+          {/* Desplegable con código QR */}
+          <CollapseQrCode link={shareUrl} />
         </VStack>
       </Box>
       <Toaster />
