@@ -17,6 +17,7 @@ function ButtonOption({ index, children, handleClick }: Props) {
       borderRadius="xl"
       boxShadow="sm"
       border="none"
+      color={"black"}
       _placeholder={{ color: "gray.400" }}
       _focus={{ boxShadow: "md", border: "none" }}
       _hover={{ backgroundColor: "gray.200" }}
