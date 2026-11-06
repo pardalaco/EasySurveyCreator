@@ -8,6 +8,8 @@ import { inputValidationMiddleware } from "./middlewares/inputValidation.js";
 import http from "http";
 import { Server } from "socket.io";
 
+const corsUrlOrigin = process.env.CLIENT_URL || "*";
+
 const app = express();
 const log = debug("mi-app:surveys");
 
@@ -15,7 +17,7 @@ const log = debug("mi-app:surveys");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: corsUrlOrigin,
     methods: ["GET", "POST"],
   },
 });
@@ -34,7 +36,7 @@ io.on("connection", (socket) => {
 
 // Configuración de cors
 const corsOptions = {
-  origin: process.env.CLIENT_URL,
+  origin: corsUrlOrigin,
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
