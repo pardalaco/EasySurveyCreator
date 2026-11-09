@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import express from "express";
-import axios, { AxiosInstance } from "axios";
-import { Server } from "http";
+import axios from "axios";
+import type { AxiosInstance } from "axios";
+import type { Server } from "http";
 import createHttpError from "http-errors";
 
 // --- Función auxiliar y Middleware ---

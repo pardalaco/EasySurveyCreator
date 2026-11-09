@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MonitorIPs } from "../../src/utils/monitorIps.js";
 
 function resetSingleton(): void {
-  (MonitorIPs as unknown as { instance?: MonitorIPs }).instance = undefined;
+  (MonitorIPs as unknown as { instance: MonitorIPs | undefined }).instance =
+    undefined;
 }
 
 beforeEach(() => {

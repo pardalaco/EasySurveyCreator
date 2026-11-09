@@ -1,44 +1,24 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
-  "exclude": ["dist", "node_modules", "test", "vitest.config.ts"],
+  // Config principal para el IDE y el typecheck (incluye src y test)
+  "include": ["src", "test", "vitest.config.ts"],
+  "exclude": ["dist", "node_modules"],
   "compilerOptions": {
-    // File Layout
-    "rootDir": "./src",
-    "outDir": "./dist",
+    "rootDir": ".",
+    "noEmit": true,
 
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
+    "types": ["node"],
+    "lib": ["esnext"],
 
-    // Other Outputs
-    "sourceMap": true,
-    // "declaration": true,
-    // "declarationMap": true,
-
-    // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
 
-    // Style Options
     "noImplicitReturns": true,
     "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
 
-    /* Emit */
-    "noEmitOnError": false, // Evita que se ejecute el typscript si tenemos un error
-    "removeComments": true, // Elimina los comentarios una ves hace la transcripción
-    "strictNullChecks": true, // Evita que se pueda asignar un valor null o undefined a una variable que no sea de ese tipo
+    "strictNullChecks": true,
 
-    // Recommended Options
     "strict": true,
     "jsx": "react-jsx",
     "verbatimModuleSyntax": true,

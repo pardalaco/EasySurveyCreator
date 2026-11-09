@@ -1,0 +1,15 @@
+{
+  // Config de build: solo compila src/ a dist/
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noEmit": false,
+    "noEmitOnError": false,
+    "removeComments": true,
+    "sourceMap": true,
+    "types": []
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "test", "vitest.config.ts"]
+}

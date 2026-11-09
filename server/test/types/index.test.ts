@@ -1,5 +1,9 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import type { Survey, SurveyOption, VoteSchema } from "../../src/types/index";
+import type {
+  Survey,
+  SurveyOption,
+  VoteSchema,
+} from "../../src/types/index.js";
 
 describe("types (server)", () => {
   describe("SurveyOption", () => {
