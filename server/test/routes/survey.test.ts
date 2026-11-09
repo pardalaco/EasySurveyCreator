@@ -14,6 +14,18 @@ import type { AxiosInstance } from "axios";
 import { io, server } from "../../src/app.js";
 import { io as ioClient, Socket } from "socket.io-client";
 
+const monitorIpsMock = vi.hoisted(() => ({
+  register: vi.fn((_ip: string) => 1),
+}));
+
+vi.mock("../../src/utils/monitorIps.js", () => ({
+  MonitorIPs: class {
+    register(ip: string) {
+      return monitorIpsMock.register(ip);
+    }
+  },
+}));
+
 type EmittedSurvey = {
   id: string;
   timestamp: string;
@@ -53,6 +65,8 @@ describe("Routes /suvery", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    monitorIpsMock.register.mockReset();
+    monitorIpsMock.register.mockImplementation(() => 1);
   });
 
   describe("POST /survey", () => {
@@ -117,6 +131,86 @@ describe("Routes /suvery", () => {
       });
 
       expect(res.status).toBe(400);
+    });
+
+    describe("límite de encuestas por IP (MonitorIPs)", () => {
+      const limitMessage =
+        "You have reached the maximum number of surveys for today. Please try again tomorrow.";
+
+      it("registra la IP del cliente al crear la encuesta", async () => {
+        const res = await post("/survey", validSurvey);
+
+        expect(res.status).toBe(200);
+        expect(monitorIpsMock.register).toHaveBeenCalledTimes(1);
+        expect(monitorIpsMock.register).toHaveBeenCalledWith(
+          expect.any(String)
+        );
+      });
+
+      it("responde 429 con el mensaje de límite diario alcanzado", async () => {
+        monitorIpsMock.register.mockImplementationOnce(() => {
+          throw new Error(limitMessage);
+        });
+
+        const res = await post("/survey", validSurvey);
+
+        expect(res.status).toBe(429);
+        expect(res.data).toBe(limitMessage);
+      });
+
+      it("responde 429 si la IP del cliente es inválida", async () => {
+        monitorIpsMock.register.mockImplementationOnce(() => {
+          throw new Error(
+            'IP inválida ("no-es-una-ip"): "no-es-una-ip" must be a valid ip address'
+          );
+        });
+
+        const res = await post("/survey", validSurvey);
+
+        expect(res.status).toBe(429);
+        expect(res.data).toContain('IP inválida ("no-es-una-ip")');
+      });
+
+      it("no crea la encuesta cuando responde 429", async () => {
+        const randomUUIDSpy = vi.spyOn(crypto, "randomUUID");
+        monitorIpsMock.register.mockImplementationOnce(() => {
+          throw new Error(limitMessage);
+        });
+
+        const res = await post("/survey", validSurvey);
+
+        expect(res.status).toBe(429);
+        expect(typeof res.data).toBe("string");
+        expect(randomUUIDSpy).not.toHaveBeenCalled();
+        randomUUIDSpy.mockRestore();
+      });
+
+      it("permite crear una encuesta cuando el registro de IP vuelve a funcionar", async () => {
+        monitorIpsMock.register.mockImplementationOnce(() => {
+          throw new Error(limitMessage);
+        });
+
+        const blocked = await post("/survey", validSurvey);
+        expect(blocked.status).toBe(429);
+
+        const res = await post("/survey", validSurvey);
+
+        expect(res.status).toBe(200);
+        expect(res.data).toHaveProperty("id");
+        expect(res.data.question).toBe(validSurvey.question);
+      });
+
+      it("responde 400 por validación de body antes que 429", async () => {
+        monitorIpsMock.register.mockImplementationOnce(() => {
+          throw new Error(limitMessage);
+        });
+
+        const res = await post("/survey", { options: validSurvey.options });
+
+        expect(res.status).toBe(400);
+        expect(res.data).toContain('"question" is required');
+        expect(monitorIpsMock.register).not.toHaveBeenCalled();
+      });
     });
   });
 
