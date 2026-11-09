@@ -6,13 +6,32 @@ import { surveyCreatorSchema, surveyVoteSchema } from "../schemas/survey.js";
 import type { Survey, SurveyOption, VoteSchema } from "../types/index.js";
 import debug from "debug";
 import { HttpError } from "../utils/httpError.js";
+import { MonitorIPs } from "../utils/monitorIps.js";
 
 const surveys: Array<Survey> = [];
+
+const limitSurvey = process.env.LIMIT_SURVEY_FOR_IP
+  ? parseInt(process.env.LIMIT_SURVEY_FOR_IP, 10)
+  : 0;
+const monitorIps = new MonitorIPs(limitSurvey);
 
 const router = express.Router();
 const log = debug("mi-app:surveys");
 
 router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
+  const ipClient = req.ip as string;
+
+  try {
+    monitorIps.register(ipClient);
+  } catch (error) {
+    const err = error as Error;
+    res.status(429).send(err.message);
+
+    log(`POST /survey - 429 Too Many Requests: ${err.message}`);
+
+    return;
+  }
+
   const surveyId = String(crypto.randomUUID().replace(/-/g, "").slice(0, 8));
 
   log(`POST /survey - ${surveyId} - ${req.ip}`);

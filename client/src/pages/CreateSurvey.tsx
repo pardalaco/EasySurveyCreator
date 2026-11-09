@@ -64,11 +64,17 @@ export default function CreateSurvey() {
 
       navegate(`/${response.data.id}`);
     } catch (error: any) {
-      // Si Axios detecta un error HTTP (ej. 400, 500) o un error de red
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Error creating the survey.";
+      const data = error.response?.data;
+
+      let errorMessage = "Error creating the survey.";
+
+      if (typeof data === "string") {
+        errorMessage = data; // Si el servidor devuelve texto plano o HTML
+      } else if (data?.message) {
+        errorMessage = data.message; // Si el servidor devuelve un JSON tipo { message: "..." }
+      } else if (error.message) {
+        errorMessage = error.message; // Fallback al mensaje de Axios
+      }
 
       toaster.create({
         description: errorMessage,
