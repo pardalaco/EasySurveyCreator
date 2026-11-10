@@ -16,7 +16,7 @@ const limitSurvey = process.env.LIMIT_SURVEY_FOR_IP
 const monitorIps = new MonitorIPs(limitSurvey);
 
 const router = express.Router();
-const log = debug("mi-app:surveys");
+const log = debug("EasySurveyCreator");
 
 router.post("/", validateSchema(surveyCreatorSchema), (req, res) => {
   const ipClient = req.ip as string;

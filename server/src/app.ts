@@ -11,7 +11,7 @@ import { Server } from "socket.io";
 const corsUrlOrigin = process.env.CLIENT_URL || "*";
 
 const app = express();
-const log = debug("mi-app:surveys");
+const log = debug("EasySurveyCreator");
 
 // Configuración del Socket.io
 const server = http.createServer(app);

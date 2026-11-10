@@ -1,4 +1,7 @@
+import debug from "debug";
 import Joi from "joi";
+
+const log = debug("EasySurveyCreator");
 
 // Esquema de validación para IPs (IPv4 e IPv6)
 const ipSchema = Joi.string().ip({
@@ -31,9 +34,7 @@ export class MonitorIPs {
 
       setInterval(() => {
         this.conteo.clear();
-        console.log(
-          `[DEV] Conteo de IPs reseteado (intervalo de ${seconds}s).`
-        );
+        log(`Conteo de IPs reseteado (intervalo de ${seconds}s).`);
       }, seconds * 1000);
     } else {
       // En producción: resetea a las 12 de la noche
@@ -58,7 +59,7 @@ export class MonitorIPs {
     setTimeout(() => {
       this.conteo.clear();
       this.scheduleMidnightReset();
-      console.log("Conteo de IPs reseteado.");
+      log("Conteo de IPs reseteado.");
     }, msToMidnight);
   }
 
