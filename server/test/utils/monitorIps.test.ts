@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MonitorIPs } from "../../src/utils/monitorIps.js";
 
+const debugMock = vi.hoisted(() => vi.fn());
+
+vi.mock("debug", () => ({
+  default: () => debugMock,
+}));
+
 function resetSingleton(): void {
   (MonitorIPs as unknown as { instance: MonitorIPs | undefined }).instance =
     undefined;
@@ -9,7 +15,7 @@ function resetSingleton(): void {
 beforeEach(() => {
   vi.useFakeTimers();
   vi.stubEnv("NODE_ENV", "test");
-  vi.spyOn(console, "log").mockImplementation(() => {});
+  debugMock.mockClear();
   resetSingleton();
 });
 
@@ -168,8 +174,8 @@ describe("MonitorIPs", () => {
       monitor.register("1.1.1.1");
       vi.advanceTimersByTime(10_000);
       expect(monitor.checkIp("1.1.1.1")).toBe(0);
-      expect(console.log).toHaveBeenCalledWith(
-        "[DEV] Conteo de IPs reseteado (intervalo de 10s)."
+      expect(debugMock).toHaveBeenCalledWith(
+        "Conteo de IPs reseteado (intervalo de 10s)."
       );
     });
 
@@ -182,8 +188,8 @@ describe("MonitorIPs", () => {
       expect(monitor.checkIp("1.1.1.1")).toBe(1);
       vi.advanceTimersByTime(1_000);
       expect(monitor.checkIp("1.1.1.1")).toBe(0);
-      expect(console.log).toHaveBeenCalledWith(
-        "[DEV] Conteo de IPs reseteado (intervalo de 30s)."
+      expect(debugMock).toHaveBeenCalledWith(
+        "Conteo de IPs reseteado (intervalo de 30s)."
       );
     });
 
@@ -205,7 +211,7 @@ describe("MonitorIPs", () => {
       monitor.register("8.8.8.8");
       vi.advanceTimersByTime(30 * 60 * 1000);
       expect(monitor.checkIp("8.8.8.8")).toBe(0);
-      expect(console.log).toHaveBeenCalledWith("Conteo de IPs reseteado.");
+      expect(debugMock).toHaveBeenCalledWith("Conteo de IPs reseteado.");
     });
 
     it("programa el siguiente reset para la medianoche siguiente", () => {
