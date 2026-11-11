@@ -1,4 +1,5 @@
-import { Toaster, toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/toaster";
+import useOptions from "@/hooks/useOptions";
 import {
   Box,
   Button,
@@ -8,79 +9,18 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import axios from "axios";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCreateSurvey } from "@/hooks/useCreateSurvey";
 
 export default function CreateSurvey() {
-  const [options, setOptions] = useState<string[]>(["", ""]);
+  const { options, setOptions, addOption, removeOption } = useOptions();
+
   const [question, setQuestion] = useState<string>("");
-  const navegate = useNavigate();
 
-  const handleAddOption = (): void => {
-    if (options.length < 5) setOptions([...options, ""]);
-    else {
-      toaster.create({
-        description: "The maximum number of options has been reached.",
-        type: "warning",
-      });
-    }
-  };
-
-  const handleDeleteOption = (index: number): void => {
-    const newOption = [...options];
-    newOption.splice(index, 1);
-    setOptions(newOption);
-  };
-
-  const handleCreateSuvery = async (): Promise<void> => {
-    if (question === "") {
-      toaster.create({
-        description: "You must include a question to create the survey.",
-        type: "warning",
-      });
-      return;
-    }
-    if (options.some((o) => o === "")) {
-      toaster.create({
-        description:
-          "You must complete the options in order to create the survey.",
-        type: "warning",
-      });
-      return;
-    }
-
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL;
-
-      const payload = {
-        question: question,
-        options: options.map((o) => ({
-          text: o,
-        })),
-      };
-
-      const response = await axios.post(`${apiUrl}/survey`, payload);
-
-      navegate(`/${response.data.id}`);
-    } catch (error: any) {
-      const data = error.response?.data;
-
-      let errorMessage = "Error creating the survey.";
-
-      if (typeof data === "string") {
-        errorMessage = data; // Si el servidor devuelve texto plano o HTML
-      } else if (data?.message) {
-        errorMessage = data.message; // Si el servidor devuelve un JSON tipo { message: "..." }
-      } else if (error.message) {
-        errorMessage = error.message; // Fallback al mensaje de Axios
-      }
-
-      toaster.create({
-        description: errorMessage,
-        type: "error",
-      });
-    }
+  // Llamas al hook y desestructuras la función
+  const { createSurvey } = useCreateSurvey();
+  const handleCreateSuvery = async () => {
+    await createSurvey(question, options);
   };
 
   return (
@@ -148,7 +88,7 @@ export default function CreateSurvey() {
                       colorScheme="gray"
                       size="md"
                       borderRadius="xl"
-                      onClick={() => handleDeleteOption(index)}
+                      onClick={() => removeOption(index)}
                     >
                       ✕
                     </Button>
@@ -166,7 +106,7 @@ export default function CreateSurvey() {
                   fontSize="sm"
                   borderRadius="xl"
                   fontWeight="medium"
-                  onClick={handleAddOption}
+                  onClick={addOption}
                   _hover={{ textDecoration: "none", color: "white" }}
                 >
                   + Add Option
