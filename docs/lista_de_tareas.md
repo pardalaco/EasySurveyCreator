@@ -43,23 +43,23 @@
 
 ### 2. Componentes e Interfaz de Usuario
 
-- [ ] **Componente `CreatePoll` (Creación de Encuestas):**
-  - [ ] Input para la pregunta principal.
-  - [ ] Renderizado dinámico de campos para opciones (permitir entre 2 y 5).
-  - [ ] Botón para añadir nuevos campos de opción.
-  - [ ] Manejo del envío del formulario mediante un `fetch` (`POST /api/polls`).
-- [ ] **Componente `PollView` (Votación y Resultados):**
-  - [ ] `useEffect` para obtener los datos de la encuesta al cargar (`GET /api/polls/:id`).
-  - [ ] Renderizar botones para votar cuando el usuario aún no ha emitido su voto.
-  - [ ] Función para enviar el voto al servidor (`POST /api/polls/:id/vote`).
-  - [ ] Renderizar barras de progreso animadas con el porcentaje de cada opción tras votar.
-- [ ] **Integración en `App.tsx`:**
-  - [ ] Controlar el estado de la vista actual (Vista de creación vs. Vista de la encuesta).
+- [x] **Componente `CreatePoll` (Creación de Encuestas):**
+  - [x] Input para la pregunta principal.
+  - [x] Renderizado dinámico de campos para opciones (permitir entre 2 y 5).
+  - [x] Botón para añadir nuevos campos de opción.
+  - [x] Manejo del envío del formulario mediante un `fetch` (`POST /api/polls`).
+- [x] **Componente `PollView` (Votación y Resultados):**
+  - [x] `useEffect` para obtener los datos de la encuesta al cargar (`GET /api/polls/:id`).
+  - [x] Renderizar botones para votar cuando el usuario aún no ha emitido su voto.
+  - [x] Función para enviar el voto al servidor (`POST /api/polls/:id/vote`).
+  - [x] Renderizar barras de progreso animadas con el porcentaje de cada opción tras votar.
+- [x] **Integración en `App.tsx`:**
+  - [x] Controlar el estado de la vista actual (Vista de creación vs. Vista de la encuesta).
 
 ---
 
 ## 🚀 Mejoras Opcionales para el Portfolio (Extras)
 
 - [ ] **Prevención de múltiples votos:** Guardar el ID de la encuesta en el `localStorage` del navegador al votar.
-- [ ] **Copiar enlace:** Botón para copiar al portapapeles la URL directa a la encuesta.
+- [x] **Copiar enlace:** Botón para copiar al portapapeles la URL directa a la encuesta.
 - [ ] **Persistencia:** Reemplazar el almacenamiento en memoria del servidor por una base de datos ligera como SQLite o PostgreSQL con Prisma.
