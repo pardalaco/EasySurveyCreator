@@ -1,45 +1,29 @@
-import BoxVote from "@/components/BoxVote.js";
 import CollapseQrCode from "@/components/CollapsibleQRcode.js";
-import { Toaster, toaster } from "@/components/ui/toaster";
+import { SurveyVotingContent } from "@/components/SurveyVotingContent.js";
+import { Toaster } from "@/components/ui/toaster";
+import { useCopyUrl } from "@/hooks/useCopyUrl.js";
+import { useEffectSurvey } from "@/hooks/useEffectSurvey.js";
+import { useMutationSurvey } from "@/hooks/useMutationSurvey.js";
+import { useVotedOptions } from "@/hooks/useVotedOptions.js";
 import { Box, Button, HStack, Heading, Text, VStack } from "@chakra-ui/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LuCheck, LuCopy } from "react-icons/lu";
 import { useParams } from "react-router-dom";
-import { Socket, io } from "socket.io-client";
-import ButtonOption from "@/components/ButtonOption.js";
-import {
-  type SurveyOption,
-  type Survey as SurveyType,
-} from "../types/index.js";
+import { type Survey as SurveyType } from "../types/index.js";
 import ErrorPage from "./ErrorPage";
 import LoadingPage from "./Loading.js";
 
 type Props = {};
 
 function Survey({}: Props) {
+  // Obtenemos los datos de los params
   const apiUrl = import.meta.env.VITE_API_URL;
   const params = useParams();
   const idSurvey = params.idSurvey;
 
-  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
-  const [hasCopied, setHasCopied] = useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setHasCopied(true);
-      setTimeout(() => setHasCopied(false), 2000); // Vuelve al estado original a los 2 segundos
-    } catch (err) {
-      console.error("Error al copiar al portapapeles", err);
-    }
-  };
-  const [votedOptions, setVotedOptions] = useState<SurveyOption[]>([]);
-  const [hasVoted, setHasVoted] = useState(false);
-  const [totalVotes, setTotalVotes] = useState(0);
-  const [votedOptionIndex, setVotedOptionIndex] = useState(-1);
-
+  // Obtenemos los datos de la encuesta
   const { error, data, isLoading } = useQuery({
     queryKey: ["survey", idSurvey],
     queryFn: () =>
@@ -48,62 +32,26 @@ function Survey({}: Props) {
         .then((response) => response.data),
   });
 
+  // Copiar url
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+  const { hasCopied, handleCopy } = useCopyUrl(shareUrl);
+
+  // Opción seleccionada
+  const [votedOptionIndex, setVotedOptionIndex] = useState(-1);
+
+  // hooks
+  const { votedOptions, setVotedOptions, totalVotes, setTotalVotes } =
+    useVotedOptions();
+
+  const { hasVoted, mutate, isPending } = useMutationSurvey(
+    apiUrl,
+    idSurvey,
+    setVotedOptions,
+    setTotalVotes
+  );
+
   // Efecto para conectar al socket SOLO cuando el usuario ya ha votado
-  useEffect(() => {
-    if (!hasVoted || !idSurvey) return;
-
-    const socket: Socket = io(apiUrl);
-
-    const eventoNombre = `update-vote-${idSurvey}`;
-
-    socket.on(eventoNombre, (surveyActualizada: SurveyType) => {
-      const options = surveyActualizada.options;
-      setVotedOptions(options);
-
-      const sumVotes = options.reduce(
-        (acc, option) => acc + (option.votes || 0),
-        0
-      );
-      setTotalVotes(sumVotes);
-    });
-
-    // Limpieza: desconectar el socket si el componente se desmonta
-    return () => {
-      socket.disconnect();
-    };
-  }, [hasVoted, idSurvey]);
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: (optionIndex: number) =>
-      axios
-        .post<SurveyType>(`${apiUrl}/survey/${idSurvey}/vote`, {
-          optionIndex: optionIndex,
-        })
-        .then((response) => response.data),
-    onSuccess: (data) => {
-      const options = data.options;
-      setVotedOptions(options);
-
-      const sumVotes = options.reduce(
-        (acc, option) => acc + (option.votes || 0),
-        0
-      );
-      setTotalVotes(sumVotes);
-
-      setHasVoted(true);
-    },
-    onError: (error: any) => {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data ||
-        "Ocurrió un error al enviar tu voto.";
-
-      toaster.create({
-        description: errorMessage,
-        type: "error",
-      });
-    },
-  });
+  useEffectSurvey(apiUrl, idSurvey, hasVoted, setVotedOptions, setTotalVotes);
 
   const handleVote = (optionIndex: number) => {
     setVotedOptionIndex(optionIndex);
@@ -120,44 +68,6 @@ function Survey({}: Props) {
 
   const question = data.question;
   const options = data.options;
-
-  const renderVotingContent = () => {
-    if (isPending) {
-      return options.map((option, index) => {
-        const percentage = index === votedOptionIndex ? 100 : 0;
-
-        return (
-          <BoxVote key={index} percentage={percentage}>
-            {option.text}
-          </BoxVote>
-        );
-      });
-    }
-
-    if (hasVoted) {
-      return votedOptions.map((option, index) => {
-        const optionVotes = option.votes || 0;
-        const percentage =
-          totalVotes > 0 ? Math.round((optionVotes / totalVotes) * 100) : 0;
-
-        return (
-          <BoxVote key={index} percentage={percentage}>
-            {option.text}
-          </BoxVote>
-        );
-      });
-    }
-
-    return options.map((option, index) => (
-      <ButtonOption
-        key={index}
-        index={index}
-        handleClick={() => handleVote(index)}
-      >
-        {option.text}
-      </ButtonOption>
-    ));
-  };
 
   return (
     <>
@@ -177,7 +87,15 @@ function Survey({}: Props) {
 
           {/* Formulario de la encuesta */}
           <VStack gap={4} w="full">
-            {renderVotingContent()}
+            <SurveyVotingContent
+              isPending={isPending}
+              hasVoted={hasVoted}
+              options={options}
+              votedOptions={votedOptions}
+              totalVotes={totalVotes}
+              votedOptionIndex={votedOptionIndex}
+              handleVote={handleVote}
+            />
           </VStack>
 
           {/* Link copiar al portapapeles */}
